@@ -1,7 +1,7 @@
 M16Py
 ===============
 
-A (very) minimal Python implementation to run on an ATMega16 (or comparable ATMEL Microcontrollers)
+A minimal Python implementation to run on an ATMega16 (or comparable Microcontrollers)
 
 Language features
 -------------------
@@ -9,6 +9,18 @@ Language features
 * Control flow: while/if
 * Functions
 * Direct access to the registers of the Microcontroller
+* Arithmetic operators (by order of evaluation)
+    * `()`
+    * `**` (power)
+    * `-` (unary)
+    * `*`, `/`, `%`
+    * `+`, `-`
+    * `<<`, `>>`
+    * `==`, `!=`, `>`, `>=`, `<`, `<=`
+    * `not` (unary)
+    * `and`
+    * `or`
+
 
 Build (UC)
 ----------------

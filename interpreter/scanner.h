@@ -37,7 +37,7 @@ typedef enum {
     ID_DEBUG,
     ID_BREAK,
     ID_PRINT,
-    ID_PRINTN,
+    ID_PRINTN, // Print without newline
     ID_COLON,
     ID_GT,
     ID_LT,

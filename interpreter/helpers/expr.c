@@ -274,16 +274,10 @@ int16_t evaluateExpression(NodeType *node) {
         return !evaluateNode(&nodes[node->Expr.right]);
     }
     else if (node->Expr.op == OP_AND) { // Only evaluate the second expression if the first one is true
-        if (!evaluateNode(&nodes[node->Expr.left])) {
-            return false;
-        }
-        return evaluateNode(&nodes[node->Expr.right]);
+        return evaluateNode(&nodes[node->Expr.left]) && evaluateNode(&nodes[node->Expr.right]);
     }
     else if (node->Expr.op == OP_OR) { // Only evaluate the second expression if the first one is false
-        if (evaluateNode(&nodes[node->Expr.left])) {
-            return false;
-        }
-        return evaluateNode(&nodes[node->Expr.right]);
+        return evaluateNode(&nodes[node->Expr.left]) || evaluateNode(&nodes[node->Expr.right]);
     }
     else {
         int16_t left = evaluateNode(&nodes[node->Expr.left]);

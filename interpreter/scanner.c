@@ -46,26 +46,31 @@ const char* const keywords[] PROGMEM = {
 
 #define CONSUME(target) { parsed.token = target; consumeFunction(&parsed); }
 
-// We hash identifiers to reduce memory usage of the strings.
-// The used function is CRC32
-uint32_t hash_identifier(const uint8_t* key, size_t length) {
-  return crc32(key, length);
+// We hash identifiers to statically determine memory usage of identifiers.
+// There is no collision detection, two strings with the same hash
+// are indistinguishable.
+// The middle 24 bits of the CRC32 of the string is used.
+static inline uint32_t hash_identifier(const uint8_t* key, size_t length) {
+  return (crc32(key, length) >> 4) & 0xFFFFFF;
 }
 
 void processCurrent(bool consumeAll);
 void processChar(char c);
 void shiftBuffer(uint8_t num);
 
+// consumeFunction is called anytime a token is detected
 void scannerInit(void *consumer) {
     consumeFunction = consumer;
 }
 
+// Process a string of given length
 void processStr(char *str, uint8_t len) {
     for (uint8_t i=0; i < len; i++) {
         processChar(str[i]);
     }
 }
 
+// Process a single character, any tokens that are detected will immediately be consumed
 void processChar(char c) {
     if (scanStatus & IN_CHAR) {
         if (scanStatus & IN_MASK) {
@@ -125,8 +130,12 @@ void processChar(char c) {
 #define IS_BIN(c) ('0' == c || c == '1')
 #define IS_HEX(c) (('0' <= c && c <= '9') || ('a' <= c && c <= 'f') || ('A' <= c && c <= 'F'))
 #define IS_TEXT(c) (('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') || (c == '_'))
-
 #define IS_SINGLE_CHAR(in, c, target) if (in == c) { parsed.token = target; consumeFunction(&parsed); shiftBuffer(1); shifted=true; continue; }
+
+
+// Process the current string stored in the buffer
+// if consumeAll is true, the full buffer needs to be consumed (usually at whitespace),
+// otherwise it returns after consuming a single token
 void processCurrent(bool consumeAll) {
     bool init = true;
     bool shifted = true;
@@ -138,6 +147,7 @@ void processCurrent(bool consumeAll) {
         shifted = false;
         char c = inputBuffer[0];
 
+        // These tokens are all identified by a single character
         IS_SINGLE_CHAR(c, ':', ID_COLON);
         IS_SINGLE_CHAR(c, ';', ID_SEMICOLON);
         IS_SINGLE_CHAR(c, ',', ID_COMMA);
@@ -150,6 +160,7 @@ void processCurrent(bool consumeAll) {
         IS_SINGLE_CHAR(c, '/', ID_DIV);
         IS_SINGLE_CHAR(c, '%', ID_MOD);
 
+        // These tokens are identified by a single character if they are alone
         if (inputPos == 1) {
             IS_SINGLE_CHAR(c, '<', ID_LT);
             IS_SINGLE_CHAR(c, '>', ID_GT);
@@ -157,6 +168,7 @@ void processCurrent(bool consumeAll) {
             IS_SINGLE_CHAR(c, '!', ID_NOT);
             IS_SINGLE_CHAR(c, '*', ID_MULT);
         }
+        // The next tokens are all
         else if (c == '<') {
             shiftBuffer(1);
             shifted = true;
@@ -313,7 +325,7 @@ void processCurrent(bool consumeAll) {
             }
 
             parsed.token = ID_NAME;
-            parsed.tokenValue = (hash_identifier((uint8_t *)inputBuffer, idLen) >> 4) & 0xFFFFFF; // We only use middle 24 bits to save space
+            parsed.tokenValue = hash_identifier((uint8_t *)inputBuffer, idLen);
             consumeFunction(&parsed);
             shiftBuffer(idLen);
             shifted=true;
@@ -326,6 +338,7 @@ void processCurrent(bool consumeAll) {
     }
 }
 
+// The currently stored input buffer is shifted by num to the left (i.e. the first num chars are discarded)
 void shiftBuffer(uint8_t num) {
     memmove(inputBuffer, inputBuffer+num, inputPos-num);
     inputPos = inputPos-num;

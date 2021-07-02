@@ -29,7 +29,7 @@ HEADERS = $(shell find $(INPUT_FOLDERS) -maxdepth 1 -name '*.h')
 all: $(TARGET)
 
 size: $(TARGET)
-	avr-size -C --mcu=$(MCU) $(TARGET).elf
+	size $(TARGET)
 
 $(TARGET): $(OBJS) $(HEADERS)
 	$(CCLD) $(OBJS) $(LDFLAGS) -o $@
@@ -37,7 +37,6 @@ $(TARGET): $(OBJS) $(HEADERS)
 
 %.o: %.c $(HEADERS)
 	$(CCLD) $(CCFLAGS) -c -o $@ $< $(LIBFLAGS)
-
 
 clean:
 	rm -f $(TARGET) $(OBJS) *.elf *.o $(TARGET).hex

@@ -44,6 +44,7 @@ const char str_if_else[] PROGMEM   = "Else = ";
 const char str_stmt_stmt[] PROGMEM   = "Stmt = ";
 const char str_stmt_next[] PROGMEM   = "Next = ";
 
+
 const char str_node_type_0[] PROGMEM = "UNUSED";
 const char str_node_type_1[] PROGMEM = "VALUE";
 const char str_node_type_2[] PROGMEM = "IF";
@@ -51,12 +52,12 @@ const char str_node_type_3[] PROGMEM = "BUILTIN";
 const char str_node_type_4[] PROGMEM = "STMT";
 const char str_node_type_5[] PROGMEM = "ASSIGN";
 const char str_node_type_6[] PROGMEM = "WHILE";
-const char str_node_type_7[] PROGMEM = "EXPR";
-const char str_node_type_8[] PROGMEM = "FUNC";
-const char str_node_type_9[] PROGMEM = "PARAM";
-const char str_node_type_10[] PROGMEM = "CALL";
+const char str_node_type_7[] PROGMEM = "FUNC";
+const char str_node_type_8[] PROGMEM = "PARAM";
+const char str_node_type_9[] PROGMEM = "CALL";
+const char str_node_type_10[] PROGMEM = "ID";
+const char str_node_type_11[] PROGMEM = "EXPR";
 const char str_node_type_12[] PROGMEM = "EXPR_BRACKET";
-const char str_node_type_13[] PROGMEM = "ID";
 
 const char* const str_node_type_table[] PROGMEM = {
     str_node_type_0,
@@ -70,8 +71,8 @@ const char* const str_node_type_table[] PROGMEM = {
     str_node_type_8,
     str_node_type_9,
     str_node_type_10,
+    str_node_type_11,
     str_node_type_12,
-    str_node_type_13,
 };
 
 #endif

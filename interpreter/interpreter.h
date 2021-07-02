@@ -49,6 +49,7 @@ typedef struct {
     uint8_t type;
 } NodeTypeWhile;
 
+// The upper 5 bit define levels of precedence
 typedef enum {
     OP_NONE,
     OP_EXP = (1 << 3),
@@ -71,7 +72,7 @@ typedef enum {
     OP_OR =  (9 << 3),
 } ExprOperands;
 
-#define IS_EXPR_NODE(node) (GET_NODE_TYPE(node) == TYPE_EXPR || GET_NODE_TYPE(node) == TYPE_EXPR_BRACKET)
+#define IS_EXPR_NODE(node) (GET_NODE_TYPE(node) >= TYPE_EXPR)
 typedef struct {
     uint8_t left;
     uint8_t right;
@@ -147,11 +148,9 @@ typedef struct {
 
 typedef enum {
     BUILTIN_BREAK,
-    BUILTIN_CONTINUE,
     BUILTIN_RETURN,
-    BUILTIN_DEL,
     BUILTIN_PRINT,
-    BUILTIN_PRINTN,
+    BUILTIN_PRINTN, // Print without newline
 } BuiltinFunctions;
 #define SINGLE_ARG_OP(op) (op >= BUILTIN_RETURN)
 #define IS_PRINT_OP(op) (op >= BUILTIN_PRINT)
@@ -187,17 +186,17 @@ typedef enum {
     TYPE_STMT,
     TYPE_ASSIGN,
     TYPE_WHILE,
-    TYPE_EXPR,
     TYPE_FUNC,
     TYPE_PARAM,
     TYPE_CALL,
+    TYPE_ID,
+    TYPE_EXPR,
     TYPE_EXPR_BRACKET,
-    TYPE_ID=(1<<4)
 } NodeTypeEnum;
 
 
-#define GET_NODE_TYPE(node) (((node).Base.type & 0x80) ? TYPE_ID : ((node).Base.type >> 3)&0x1F)
-#define GET_NODE_TYPE_IDX(node) ((GET_NODE_TYPE(node) == TYPE_ID) ? (TYPE_EXPR_BRACKET+1) : GET_NODE_TYPE(node) )
+#define GET_NODE_TYPE(node) (((node).Base.type >> 3)&0x1F)
+#define GET_NODE_TYPE_IDX(node) (GET_NODE_TYPE(node))
 #define SET_NODE_TYPE(node, typeName) {(node).Base.type = typeName << 3;}
 #define NODE_GET_POS(node) ((node).Base.type & 0b111)
 #define NODE_INCR_POS(node) (node).Base.type++;
@@ -205,7 +204,7 @@ typedef enum {
 
 #define GET_ID_HASH(node) (((node).Id.value) & 0xFFFFFF)
 #define IS_ID_NODE(node) ((node).Base.type & 0x80)
-#define SET_ID_NODE(node, hash) (node).Id.value = (hash) | (1UL << 31);
+#define SET_ID_NODE(node, hash) (node).Id.value = (hash); SET_NODE_TYPE(node, TYPE_ID);
 
 #define ACT_NODE nodes[activeNode]
 #define CURRENT_NODE_TYPE GET_NODE_TYPE(ACT_NODE)
